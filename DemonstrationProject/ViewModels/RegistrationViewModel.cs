@@ -1,4 +1,5 @@
 ﻿using DemonstrationProject.Commands;
+using DemonstrationProject.Repositories.Interfaces;
 using DemonstrationProject.Scripts.Interfaces;
 using System;
 using System.ComponentModel;
@@ -14,6 +15,7 @@ namespace DemonstrationProject.ViewModels
         private string _password = string.Empty;
 
         private readonly IPageService _pageService;
+        private readonly IUserRepository _userRepository;
 
         public string Username
         {
@@ -30,14 +32,15 @@ namespace DemonstrationProject.ViewModels
         public ICommand RegisterCommand { get; }
         public ICommand NavigateToLoginCommand { get; }
 
-        public RegistrationViewModel(IPageService pageService)
+        public RegistrationViewModel(IPageService pageService, IUserRepository userRepository)
         {
             _pageService = pageService;
+            _userRepository = userRepository;
             RegisterCommand = new RelayCommand(_ => Register());
             NavigateToLoginCommand = new RelayCommand(_ => NavigateToLogin());
         }
 
-        private void Register()
+        private async void Register()
         {
             if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
             {
@@ -45,8 +48,21 @@ namespace DemonstrationProject.ViewModels
                 return;
             }
 
-            MessageBox.Show("Регистрация выполнена успешно!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-            NavigateToLogin();
+            if (await _userRepository.UserExistsAsync(Username))
+            {
+                MessageBox.Show("Пользователь с таким именем уже существует", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (await _userRepository.RegisterAsync(Username, Password))
+            {
+                MessageBox.Show("Регистрация выполнена успешно!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                NavigateToLogin();
+            }
+            else
+            {
+                MessageBox.Show("Ошибка при регистрации", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void NavigateToLogin()

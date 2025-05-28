@@ -1,4 +1,6 @@
-﻿using DemonstrationProject.Scripts.Interfaces;
+﻿using DemonstrationProject.Repositories;
+using DemonstrationProject.Repositories.Interfaces;
+using DemonstrationProject.Scripts.Interfaces;
 using DemonstrationProject.Scripts.Services;
 using DemonstrationProject.Views.Controls;
 using System;
@@ -13,6 +15,7 @@ namespace DemonstrationProject.ViewModels
     {
         private UserControl? _currentPage;
         private readonly IPageService _pageService;
+        private readonly IUserRepository _userRepository;
 
         public UserControl? CurrentPage
         {
@@ -29,11 +32,12 @@ namespace DemonstrationProject.ViewModels
             try
             {
                 _pageService = new PageService();
+                _userRepository = new InMemoryUserRepository();
                 _pageService.PageChanged += OnPageChanged;
 
                 // Создаем контролы
-                var loginControl = new LoginControl { DataContext = new LogInViewModel(_pageService) };
-                var registerControl = new RegisterControl { DataContext = new RegistrationViewModel(_pageService) };
+                var loginControl = new LoginControl { DataContext = new LogInViewModel(_pageService, _userRepository) };
+                var registerControl = new RegisterControl { DataContext = new RegistrationViewModel(_pageService, _userRepository) };
 
                 // Регистрируем страницы
                 _pageService.RegisterPage("Login", loginControl);

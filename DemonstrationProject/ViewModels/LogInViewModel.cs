@@ -1,4 +1,5 @@
 ﻿using DemonstrationProject.Commands;
+using DemonstrationProject.Repositories.Interfaces;
 using DemonstrationProject.Scripts.Interfaces;
 using DemonstrationProject.Views.Windows;
 using System;
@@ -15,6 +16,7 @@ namespace DemonstrationProject.ViewModels
         private string _password = string.Empty;
 
         private readonly IPageService _pageService;
+        private readonly IUserRepository _userRepository;
 
         public string UserName
         {
@@ -31,14 +33,15 @@ namespace DemonstrationProject.ViewModels
         public ICommand LogInCommand { get; }
         public ICommand NavigateToRegisterCommand { get; }
 
-        public LogInViewModel(IPageService pageService)
+        public LogInViewModel(IPageService pageService, IUserRepository userRepository)
         {
             _pageService = pageService;
+            _userRepository = userRepository;
             LogInCommand = new RelayCommand(_ => Login());
             NavigateToRegisterCommand = new RelayCommand(_ => NavigateToRegister());
         }
 
-        private void Login()
+        private async void Login()
         {
             if (string.IsNullOrWhiteSpace(UserName) || string.IsNullOrWhiteSpace(Password))
             {
@@ -46,16 +49,24 @@ namespace DemonstrationProject.ViewModels
                 return;
             }
 
-            MessageBox.Show("Вход выполнен успешно!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-            
-            // Открываем главное окно
-            var mainWindow = new MainWindow();
-            mainWindow.Show();
-
-            // Закрываем окно авторизации
-            if (Application.Current.Windows.Count > 0)
+            try
             {
-                Application.Current.Windows[0].Close();
+                var userId = await _userRepository.AuthenticateAsync(UserName, Password);
+                MessageBox.Show("Вход выполнен успешно!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                
+                // Открываем главное окно
+                var mainWindow = new MainWindow();
+                mainWindow.Show();
+
+                // Закрываем окно авторизации
+                if (Application.Current.Windows.Count > 0)
+                {
+                    Application.Current.Windows[0].Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Неверное имя пользователя или пароль", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

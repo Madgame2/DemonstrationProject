@@ -19,6 +19,7 @@
             
             <TextBlock Text="Пароль:" Margin="0,0,0,5"/>
             <PasswordBox x:Name="PasswordBox" 
+                        PasswordChanged="PasswordBox_PasswordChanged"
                         Margin="0,0,0,20"/>
             
             <Button Content="Зарегистрироваться" 
