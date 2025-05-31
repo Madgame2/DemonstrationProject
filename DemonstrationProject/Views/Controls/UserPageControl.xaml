@@ -1,0 +1,69 @@
+﻿<UserControl x:Class="DemonstrationProject.Views.Controls.UserPageControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DemonstrationProject.Views.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <Style x:Key="HeaderBorder" TargetType="Border">
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Height" Value="60"/>
+            <Setter Property="Background" Value="#FFCECECE"/>
+            <Setter Property="Padding" Value="50,0,50,0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Margin" Value="25,10,25,0"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Direction="270" ShadowDepth="0.5" Color="Black" BlurRadius="5"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="UndoRedoButton" TargetType="Button">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="12.5,5,12.5,5"/>
+            <Setter Property="Margin" Value="5,20,5,0"/>
+            <Setter Property="Background" Value="#FF00A3FF"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <Style x:Key="NavButtons" TargetType="Button">
+            <Setter Property="Margin" Value="0,0,0,0"/>
+            <Setter Property="Padding" Value="25,0,25,0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid Panel.ZIndex="1">
+            <Border Style="{StaticResource HeaderBorder}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid Grid.Column="0">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource UndoRedoButton}" Content="undo"/>
+                            <Button Style="{StaticResource UndoRedoButton}" Content="redo"/>
+                        </StackPanel>
+                    </Grid>
+                    <Grid Grid.Column="1">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Style="{StaticResource NavButtons}" Content="Магазин"/>
+                            <Button Style="{StaticResource NavButtons}" Content="Карзина"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+        <Grid Background="White">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <ContentPresenter x:Name="ShowCaseRoot"/>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,14 +1,7 @@
-﻿using DemonstrationProject.ViewModels;
-using System.Text;
+﻿using DemonstrationProject.Scripts.Services;
+using DemonstrationProject.ViewModels;
+using DemonstrationProject.Views.Controls;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace DemonstrationProject.Views.Windows
 {
@@ -17,10 +10,13 @@ namespace DemonstrationProject.Views.Windows
     /// </summary>
     public partial class MainWindow : Window
     {
+        private MainViewModel context;
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainViewModel();
+            context = new MainViewModel();
+            DataContext = context;
+
         }
     }
 }

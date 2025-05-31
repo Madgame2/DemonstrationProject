@@ -19,8 +19,9 @@ namespace DemonstrationProject
 
             var pageService = new PageService();
 
+            var maInWindow = new MainWindow();
             var Window = new AuthWindow();
-            Window.Show();
+            maInWindow.Show();
         }
     }
 }

@@ -35,15 +35,15 @@ namespace DemonstrationProject.ViewModels
                 _userRepository = new InMemoryUserRepository();
                 _pageService.PageChanged += OnPageChanged;
 
-                // Создаем контролы
+
                 var loginControl = new LoginControl { DataContext = new LogInViewModel(_pageService, _userRepository) };
                 var registerControl = new RegisterControl { DataContext = new RegistrationViewModel(_pageService, _userRepository) };
 
-                // Регистрируем страницы
+
                 _pageService.RegisterPage("Login", loginControl);
                 _pageService.RegisterPage("Register", registerControl);
 
-                // Устанавливаем начальную страницу
+
                 CurrentPage = loginControl;
             }
             catch (Exception ex)

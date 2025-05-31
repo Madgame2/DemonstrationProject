@@ -1,30 +1,39 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Controls;
 using System.Windows.Input;
 using DemonstrationProject.Commands;
+using DemonstrationProject.Scripts.Services;
+using DemonstrationProject.Views.Controls;
 
 namespace DemonstrationProject.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private string _userName = string.Empty;
-
-        public string UserName
-        {
-            get => _userName;
-            set
-            {
-                _userName = value;
-                OnPropertyChanged();
-            }
-        }
+        private UserControl _currentPage;
+        private PageService _pageService;
 
         public ICommand LogoutCommand { get; }
 
+        public ICommand NavigateToShowcaseCommand { get; }
+        public ICommand NavigateToAdminPanelCommand { get; }
+
+        public UserControl CurrentPage
+        {
+            get => _currentPage;
+            set { _currentPage = value; OnPropertyChanged(); }
+        }
+
         public MainViewModel()
         {
+            _pageService = new PageService();
+
+            _pageService.RegisterPage("Showcase", new UserPageControl());
+
             LogoutCommand = new RelayCommand(_ => Logout());
+            NavigateToShowcaseCommand = new RelayCommand(_ => CurrentPage = _pageService.NavigateToPage("Showcase"));
+            NavigateToAdminPanelCommand = new RelayCommand(_ => CurrentPage = _pageService.NavigateToPage("AdminPanel"));
         }
 
         private void Logout()

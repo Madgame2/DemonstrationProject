@@ -52,7 +52,6 @@ namespace DemonstrationProject.ViewModels
             try
             {
                 var userId = await _userRepository.AuthenticateAsync(UserName, Password);
-                MessageBox.Show("Вход выполнен успешно!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                 
                 // Открываем главное окно
                 var mainWindow = new MainWindow();
