@@ -47,22 +47,22 @@
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0">
                         <StackPanel Orientation="Horizontal">
-                            <Button Style="{StaticResource UndoRedoButton}" Content="undo"/>
-                            <Button Style="{StaticResource UndoRedoButton}" Content="redo"/>
+                            <Button Style="{StaticResource UndoRedoButton}" Command="{Binding UndoCommand}" Content="undo"/>
+                            <Button Style="{StaticResource UndoRedoButton}" Command="{Binding RedoCommand}" Content="redo"/>
                         </StackPanel>
                     </Grid>
                     <Grid Grid.Column="1">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Style="{StaticResource NavButtons}" Content="Магазин"/>
-                            <Button Style="{StaticResource NavButtons}" Content="Карзина"/>
+                            <Button Style="{StaticResource NavButtons}" Command="{Binding NavigateToShowCaseCommand}" Content="Магазин"/>
+                            <Button Style="{StaticResource NavButtons}" Command="{Binding NavigateToCartCommand}" Content="Карзина"/>
                         </StackPanel>
                     </Grid>
                 </Grid>
             </Border>
         </Grid>
-        <Grid Background="White">
+        <Grid>
             <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                <ContentPresenter x:Name="ShowCaseRoot"/>
+                <ContentPresenter Margin="30,80,30,0" x:Name="ShowCaseRoot" Content="{Binding CurrentPage}"/>
             </ScrollViewer>
         </Grid>
     </Grid>
