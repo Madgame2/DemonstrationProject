@@ -1,0 +1,81 @@
+﻿<UserControl x:Class="DemonstrationProject.Views.Controls.CartControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DemonstrationProject.Views.Controls"
+             xmlns:conv="clr-namespace:DemonstrationProject.Convertors"
+             xmlns:components="clr-namespace:DemonstrationProject.Views.Components"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <conv:RectFromSizeConverter x:Key="RectFromSizeConverter"/>
+
+        <Style TargetType="Image" x:Key="ImageStyles">
+            <Setter Property="Width" Value="125"/>
+
+        </Style>
+        
+        <Style TargetType="Border" x:Key="CartItemStyle">
+            <Setter Property="Height" Value="80"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Margin" Value="2,5,2,5"/>
+        </Style>
+
+        <DropShadowEffect x:Key="ShadowEffect" ShadowDepth="0" Color="Black" Opacity="0.2" BlurRadius="15"/>
+
+
+        <DataTemplate x:Key="CartItemTemplate">
+            <Border Effect="{StaticResource ShadowEffect}">
+                <Border x:Name="roundedContainer" Style="{StaticResource CartItemStyle}">
+                    <Border.Clip>
+                        <RectangleGeometry RadiusX="8" RadiusY="8">
+                            <RectangleGeometry.Rect>
+                                <MultiBinding Converter="{StaticResource RectFromSizeConverter}">
+                                    <Binding ElementName="roundedContainer" Path="ActualWidth"/>
+                                    <Binding ElementName="roundedContainer" Path="ActualHeight"/>
+                                </MultiBinding>
+                            </RectangleGeometry.Rect>
+                        </RectangleGeometry>
+                    </Border.Clip>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Image Grid.Column="0" Style="{StaticResource ImageStyles}" Source="{Binding ImageSource}"/>
+                        <Grid Grid.Column="1">
+                            <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="10,10,0,5"/>
+                        </Grid>
+                        <TextBlock Grid.Column="2" Text="{Binding Price, StringFormat=' {0:C}'}"  VerticalAlignment="Center" Margin="0,0,25,0"/>
+                    </Grid>
+                </Border>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+    
+    <Grid Margin="0,0,0,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.7*"/>
+            <ColumnDefinition Width="0.3*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <ItemsControl ItemsSource="{Binding Products}" ItemTemplate="{StaticResource CartItemTemplate}" Margin="0,0,25,0">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </Grid>
+        <Grid Grid.Column="1">
+            <components:FinaledField Margin="0,5,0,0" VerticalAlignment="Top" Height="130"
+                                     FinalFeald="итоговая стоимость: "
+                                     Description="Налог с продаж будет рассчитан во время оформления заказа, если применимо."
+                                     FinalValue="{Binding TotalCoast}"/>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -37,6 +37,7 @@ namespace DemonstrationProject.ViewModels
             _pageService = new PageService();
 
             _pageService.RegisterPage("ShowCase", new ShowcaseControl());
+            _pageService.RegisterPage("Cart", new CartControl());
 
             NavigateToShowCaseCommand = new RelayCommand(_ => CurrentPage = _pageService.NavigateToPage("ShowCase"));
             NavigateToCartCommand = new RelayCommand(_ => CurrentPage = _pageService.NavigateToPage("Cart"));
