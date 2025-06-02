@@ -30,6 +30,7 @@ namespace DemonstrationProject.ViewModels
             _pageService = new PageService();
 
             _pageService.RegisterPage("Showcase", new UserPageControl());
+            _pageService.RegisterPage("AdminPanel", new AdminPanelControl());
 
             LogoutCommand = new RelayCommand(_ => Logout());
             NavigateToShowcaseCommand = new RelayCommand(_ => CurrentPage = _pageService.NavigateToPage("Showcase"));
