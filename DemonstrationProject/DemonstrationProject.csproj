@@ -9,7 +9,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DB\" />
+    <None Remove="DB\Scripts\CreateDatabaseAndTables.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="DB\Scripts\CreateDatabaseAndTables.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
   </ItemGroup>
 
 </Project>

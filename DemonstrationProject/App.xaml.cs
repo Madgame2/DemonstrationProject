@@ -1,6 +1,7 @@
 ﻿using System.Configuration;
 using System.Data;
 using System.Windows;
+using DemonstrationProject.DB;
 using DemonstrationProject.Scripts.Services;
 using DemonstrationProject.ViewModels;
 using DemonstrationProject.Views.Controls;
@@ -16,6 +17,16 @@ namespace DemonstrationProject
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            try
+            {
+                DatabaseInitializer.Initialize();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при инициализации базы данных: " + ex.Message);
+                Shutdown(); 
+            }
 
             var pageService = new PageService();
 
