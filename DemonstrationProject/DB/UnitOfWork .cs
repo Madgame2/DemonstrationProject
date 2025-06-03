@@ -23,7 +23,6 @@ namespace DemonstrationProject.DB
         public ICartRerository Carts { get; }
         public IProductRepository Products { get; }
 
-        // Метод для получения текущей транзакции
         internal SqlTransaction GetCurrentTransaction()
         {
             lock (_transactionLock)
@@ -36,7 +35,6 @@ namespace DemonstrationProject.DB
 
         public UnitOfWork(string connectionString)
         {
-            // Добавляем поддержку MARS
             if (!connectionString.Contains("MultipleActiveResultSets"))
             {
                 connectionString += ";MultipleActiveResultSets=True";
@@ -45,13 +43,11 @@ namespace DemonstrationProject.DB
             _connection = new SqlConnection(connectionString);
             _connection.Open();
             
-            // Создаем начальную транзакцию
             lock (_transactionLock)
             {
                  _transaction = _connection.BeginTransaction();
             }
 
-            // Передаем функцию для получения текущей транзакции в репозитории
             Users = new UserRepository(_connection, GetCurrentTransaction);
             Carts = new CartRepository(_connection, GetCurrentTransaction);
             Products = new ProductRepossitory(_connection, GetCurrentTransaction);
@@ -70,11 +66,9 @@ namespace DemonstrationProject.DB
 
             try
             {
-                // Используем синхронный Commit внутри lock
                 lock (_transactionLock)
                 {
                     currentTransaction.Commit();
-                    // Сразу создаем новую транзакцию после коммита в том же lock
                     _transaction = _connection.BeginTransaction();
                 }
                 
@@ -83,15 +77,14 @@ namespace DemonstrationProject.DB
             }catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка в CommitAsync: {ex.Message}");
-                // Rollback также должен быть синхронизирован
-                await Task.Run(() => Rollback()); // Выполняем синхронный Rollback в пуле потоков
+                await Task.Run(() => Rollback()); 
                 throw;
             }
         }
 
         public async Task RollbackAsync()
         {
-             await Task.Run(() => Rollback()); // Выполняем синхронный Rollback в пуле потоков
+             await Task.Run(() => Rollback()); 
         }
 
         private void Rollback()
@@ -102,7 +95,7 @@ namespace DemonstrationProject.DB
             lock (_transactionLock)
             {
                 currentTransaction = _transaction;
-                _transaction = null; // Сбрасываем транзакцию перед откатом
+                _transaction = null; 
             }
 
             if (currentTransaction == null) return;
@@ -113,7 +106,6 @@ namespace DemonstrationProject.DB
             }
             catch (InvalidOperationException)
             {
-                // Транзакция уже завершена, игнорируем
             }
             catch (Exception ex)
             {

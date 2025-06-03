@@ -1,6 +1,7 @@
 ﻿using DemonstrationProject.Commands;
 using DemonstrationProject.Models;
 using DemonstrationProject.DB;
+using DemonstrationProject.Scripts.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,13 +18,44 @@ namespace DemonstrationProject.ViewModels
     public class ShowcaseViewModel : INotifyPropertyChanged
     {
         private readonly UnitOfWork _unitOfWork;
+        private readonly UndoRedoService _undoRedoService;
         public ObservableCollection<Product> Products { get; }
+
+        // Команды для работы с витриной товаров
+        public static RoutedUICommand SortProductsCommand = new RoutedUICommand(
+            "Сортировать товары",
+            "SortProducts",
+            typeof(ShowcaseViewModel),
+            new InputGestureCollection { new KeyGesture(Key.S, ModifierKeys.Control) }
+        );
+
+        public static RoutedUICommand FilterProductsCommand = new RoutedUICommand(
+            "Фильтровать товары",
+            "FilterProducts",
+            typeof(ShowcaseViewModel),
+            new InputGestureCollection { new KeyGesture(Key.F, ModifierKeys.Control) }
+        );
+
+        public static RoutedUICommand SearchProductsCommand = new RoutedUICommand(
+            "Поиск товаров",
+            "SearchProducts",
+            typeof(ShowcaseViewModel),
+            new InputGestureCollection { new KeyGesture(Key.F, ModifierKeys.Control | ModifierKeys.Shift) }
+        );
+
+        public static RoutedUICommand RefreshProductsCommand = new RoutedUICommand(
+            "Обновить список товаров",
+            "RefreshProducts",
+            typeof(ShowcaseViewModel),
+            new InputGestureCollection { new KeyGesture(Key.R, ModifierKeys.Control) }
+        );
 
         public ICommand AddToCartCommand { get; }
 
-        public ShowcaseViewModel(UnitOfWork unitOfWork)
+        public ShowcaseViewModel(UnitOfWork unitOfWork, UndoRedoService undoRedoService)
         {
             _unitOfWork = unitOfWork;
+            _undoRedoService = undoRedoService;
             Products = new ObservableCollection<Product>();
 
             AddToCartCommand = new RelayCommand<Product>(OnAddToCart);
@@ -63,7 +95,7 @@ namespace DemonstrationProject.ViewModels
             }
         }
 
-        private async void OnAddToCart(Product product)
+        private void OnAddToCart(Product product)
         {
             if (product == null) return;
 
@@ -75,37 +107,27 @@ namespace DemonstrationProject.ViewModels
                 return;
             }
 
-            try
+            // Создаем отменяемую команду
+            var addCommand = new AddCartItemCommand(_unitOfWork, new Cart
             {
-                // Создаем новую запись в корзине
-                var cartItem = new Cart
-                {
-                    UserId = App.UserId, // Используем ID текущего пользователя из App
-                    ProductId = product.Id,
-                    Product = product,
-                };
+                UserId = App.UserId,
+                ProductId = product.Id,
+                Product = product
+            });
 
-                // Добавляем в базу данных
-                await _unitOfWork.Carts.AddAsync(cartItem);
-                await _unitOfWork.CommitAsync();
+            // Выполняем команду через сервис UndoRedo
+            _undoRedoService.ExecuteCommand(addCommand);
 
-                MessageBox.Show($"Товар '{product.Name}' добавлен в корзину", "Успех",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (Exception ex)
-            {
-                try
-                {
-                    await _unitOfWork.RollbackAsync();
-                }
-                catch (Exception rollbackEx)
-                {
-                    MessageBox.Show($"Ошибка при откате изменений: {rollbackEx.Message}", 
-                        "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                MessageBox.Show($"Ошибка при добавлении товара в корзину: {ex.Message}", 
-                    "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            // Обновляем UI корзины после выполнения команды
+            // Важно: здесь мы не вызываем LoadCartItemsAsync напрямую в этом ViewModel,
+            // потому что CartControlViewModel уже подписан на событие DataChanged UnitOfWork,
+            // которое вызывается после CommitAsync в AddCartItemCommand.
+
+            // MessageBox.Show($"Товар '{product.Name}' добавлен в корзину", "Успех",
+            //     MessageBoxButton.OK, MessageBoxImage.Information);
+
+            // Обновляем состояние команд Undo/Redo (теперь это делается в UserPageViewModel)
+             // CommandManager.InvalidateRequerySuggested(); // Больше не нужно здесь
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

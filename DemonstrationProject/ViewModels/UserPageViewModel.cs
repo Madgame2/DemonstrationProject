@@ -17,6 +17,7 @@ namespace DemonstrationProject.ViewModels
     public class UserPageViewModel : INotifyPropertyChanged
     {
         private IPageService _pageService;
+        private readonly UndoRedoService _undoRedoService = new UndoRedoService();
 
         private UserControl _currentPage;
 
@@ -36,8 +37,22 @@ namespace DemonstrationProject.ViewModels
         {
             _pageService = new PageService();
 
-            _pageService.RegisterPage("ShowCase", new ShowcaseControl());
-            _pageService.RegisterPage("Cart", new CartControl());
+            // Инициализируем команды Undo/Redo
+            UndoCommand = new RelayCommand(_ => _undoRedoService.Undo(), _ => _undoRedoService.CanUndo);
+            RedoCommand = new RelayCommand(_ => _undoRedoService.Redo(), _ => _undoRedoService.CanRedo);
+
+            // Создаем и настраиваем ShowcaseControl
+            var showcaseControl = new ShowcaseControl();
+            // Устанавливаем DataContext ShowcaseControl, передавая UnitOfWork и UndoRedoService
+            showcaseControl.DataContext = new ShowcaseViewModel(App.UnitOfWork, _undoRedoService);
+
+            // Создаем и настраиваем CartControl (если он тоже требует UndoRedoService, передайте его здесь)
+            var cartControl = new CartControl();
+            // Устанавливаем DataContext CartControl, передавая UnitOfWork и UserId
+            cartControl.DataContext = new CartControlViewModel(App.UnitOfWork, App.UserId);
+
+            _pageService.RegisterPage("ShowCase", showcaseControl);
+            _pageService.RegisterPage("Cart", cartControl);
 
             NavigateToShowCaseCommand = new RelayCommand(_ => CurrentPage = _pageService.NavigateToPage("ShowCase"));
             NavigateToCartCommand = new RelayCommand(_ => CurrentPage = _pageService.NavigateToPage("Cart"));

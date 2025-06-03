@@ -20,16 +20,22 @@ namespace DemonstrationProject.Repositories.ADO
             _getTransaction = getTransaction;
         }
 
-        public async Task AddAsync(Cart entity)
+        public async Task<int> AddAsync(Cart entity)
         {
             if (entity == null) throw new ArgumentNullException(nameof(entity));
 
-            using (var command = new SqlCommand("INSERT INTO Carts (UserId, ProductId) VALUES (@UserId, @ProductId)", _connection))
+            using (var command = new SqlCommand("INSERT INTO Carts (UserId, ProductId) VALUES (@UserId, @ProductId); SELECT SCOPE_IDENTITY();", _connection))
             {
                 command.Transaction = _getTransaction();
                 command.Parameters.AddWithValue("@UserId", entity.UserId);
                 command.Parameters.AddWithValue("@ProductId", entity.ProductId);
-                await command.ExecuteNonQueryAsync();
+                
+                var result = await command.ExecuteScalarAsync();
+                if (result != null && result != DBNull.Value)
+                {
+                    return Convert.ToInt32(result);
+                }
+                throw new Exception("Failed to insert cart item or retrieve ID.");
             }
         }
 

@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using DemonstrationProject.Scripts.Services;
 
 namespace DemonstrationProject.Views.Controls
 {
@@ -24,7 +25,6 @@ namespace DemonstrationProject.Views.Controls
         public ShowcaseControl()
         {
             InitializeComponent();
-            DataContext = new ShowcaseViewModel(App.UnitOfWork);
         }
     }
 }
