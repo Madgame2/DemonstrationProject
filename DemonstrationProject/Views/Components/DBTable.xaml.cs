@@ -31,11 +31,20 @@ namespace DemonstrationProject.Views.Components
         }
 
         public static readonly DependencyProperty ItemsSourceProperty =
-    DependencyProperty.Register(
-        nameof(ItemsSource),
-        typeof(IEnumerable),
-        typeof(DBTable),
-        new PropertyMetadata(null));
+            DependencyProperty.Register(
+                nameof(ItemsSource),
+                typeof(IEnumerable),
+                typeof(DBTable),
+                new PropertyMetadata(null, OnItemsSourceChanged)); // Add OnItemsSourceChanged callback
+
+        private static void OnItemsSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = (DBTable)d;
+            if (control.MainDataGrid != null)
+            {
+                control.MainDataGrid.ItemsSource = (IEnumerable)e.NewValue;
+            }
+        }
 
         public static readonly DependencyProperty MaxVisibleRowsProperty =
     DependencyProperty.Register(

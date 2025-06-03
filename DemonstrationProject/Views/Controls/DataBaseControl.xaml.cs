@@ -11,7 +11,7 @@ namespace DemonstrationProject.Views.Controls
         public DataBaseControl()
         {
             InitializeComponent();
-            DataContext = new DataBasePageViewModel();
+            DataContext = new DataBasePageViewModel(App.UnitOfWork);
         }
     }
 }

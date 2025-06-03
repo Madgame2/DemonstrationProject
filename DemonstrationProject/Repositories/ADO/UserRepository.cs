@@ -1,62 +1,179 @@
-﻿using DemonstrationProject.Repositories.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DemonstrationProject.Models;
+using DemonstrationProject.Repositories.Interfaces;
 using Microsoft.Data.SqlClient;
-using DemonstrationProject.Scripts;
+using System;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace DemonstrationProject.Repositories.ADO
 {
     public class UserRepository : IUserRepository
     {
         private readonly SqlConnection _connection;
-        private readonly SqlTransaction _transaction;
+        private readonly Func<SqlTransaction> _getTransaction;
 
-        public UserRepository(SqlConnection connection, SqlTransaction transaction = null)
+        public UserRepository(SqlConnection connection, Func<SqlTransaction> getTransaction)
         {
             _connection = connection;
-            _transaction = transaction;
+            _getTransaction = getTransaction;
         }
 
         public async Task<int> AuthenticateAsync(string username, string password)
         {
-            string sql = "SELECT Id, PasswordHash FROM Users WHERE UserName = @username";
-            using var cmd = new SqlCommand(sql, _connection,_transaction);
-            cmd.Parameters.AddWithValue("@username", username);
+            // Вставьте сюда логику аутентификации пользователя
+            // Например, поиск пользователя по логину и проверка пароля (с хешированием)
 
-            using var reader = await cmd.ExecuteReaderAsync();
+            using (var command = new SqlCommand("SELECT Id FROM Users WHERE Username = @Username AND PasswordHash = @PasswordHash", _connection))
+            {
+                command.Transaction = _getTransaction();
+                command.Parameters.AddWithValue("@Username", username);
+                command.Parameters.AddWithValue("@PasswordHash", password);
 
-            if (!await reader.ReadAsync())
-                 throw new UserNotFoundExaption();
+                var result = await command.ExecuteScalarAsync();
 
-            int userId = (int)reader["Id"];
-            return userId;
+                if (result != null && result != DBNull.Value)
+                {
+                    return (int)result;
+                }
+                throw new Exception("User not found or invalid password.");
+            }
         }
 
         public async Task<bool> RegisterAsync(string username, string password)
         {
+            // Проверяем, существует ли пользователь с таким именем
             if (await UserExistsAsync(username))
-                return false;
+            {
+                return false; // Пользователь уже существует
+            }
 
-            var sql = "INSERT INTO Users (UserName, PasswordHash) VALUES (@username, @passwordHash)";
-            using var cmd = new SqlCommand(sql, _connection, _transaction);
-            cmd.Parameters.AddWithValue("@username", username);
-            cmd.Parameters.AddWithValue("@passwordHash", password);
+            // Вставляем нового пользователя
+            using (var command = new SqlCommand("INSERT INTO Users (Username, PasswordHash) VALUES (@Username, @PasswordHash)", _connection))
+            {
+                command.Transaction = _getTransaction();
+                command.Parameters.AddWithValue("@Username", username);
+                command.Parameters.AddWithValue("@PasswordHash", password);
 
-            int affected = await cmd.ExecuteNonQueryAsync();
-            return affected > 0;
+                var affectedRows = await command.ExecuteNonQueryAsync();
+                return affectedRows > 0;
+            }
         }
 
         public async Task<bool> UserExistsAsync(string username)
         {
-            string sql = "SELECT COUNT(*) FROM Users WHERE UserName = @username";
-            using var cmd = new SqlCommand(sql, _connection, _transaction);
-            cmd.Parameters.AddWithValue("@username", username);
+            using (var command = new SqlCommand("SELECT COUNT(*) FROM Users WHERE Username = @Username", _connection))
+            {
+                command.Transaction = _getTransaction();
+                command.Parameters.AddWithValue("@Username", username);
 
-            int count = (int)await cmd.ExecuteScalarAsync();
-            return count > 0;
+                var count = (int)await command.ExecuteScalarAsync();
+                return count > 0;
+            }
         }
+
+        public async Task AddAsync(User entity)
+        {
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
+
+            using (var command = new SqlCommand("INSERT INTO Users (Username, PasswordHash) VALUES (@Username, @PasswordHash)", _connection))
+            {
+                command.Transaction = _getTransaction();
+                command.Parameters.AddWithValue("@Username", entity.UserName);
+                command.Parameters.AddWithValue("@PasswordHash", entity.PasswordHash);
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+
+        public async Task UpdateAsync(User entity)
+        {
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
+
+            using (var command = new SqlCommand("UPDATE Users SET Username = @Username, PasswordHash = @PasswordHash WHERE Id = @Id", _connection))
+            {
+                command.Transaction = _getTransaction();
+                command.Parameters.AddWithValue("@Id", entity.Id);
+                command.Parameters.AddWithValue("@Username", entity.UserName);
+                command.Parameters.AddWithValue("@PasswordHash", entity.PasswordHash);
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            using (var command = new SqlCommand("DELETE FROM Users WHERE Id = @Id", _connection))
+            {
+                command.Transaction = _getTransaction();
+                command.Parameters.AddWithValue("@Id", id);
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+
+        public async Task<User?> GetByIdAsync(int id)
+        {
+            using (var command = new SqlCommand("SELECT Id, Username, PasswordHash FROM Users WHERE Id = @Id", _connection))
+            {
+                command.Transaction = _getTransaction();
+                command.Parameters.AddWithValue("@Id", id);
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        return new User
+                        {
+                            Id = reader.GetInt32(0),
+                            UserName = reader.GetString(1),
+                            PasswordHash = reader.GetString(2)
+                        };
+                    }
+                    return null;
+                }
+            }
+        }
+
+        public async Task<User?> GetByUsernameAsync(string username)
+        {
+            using (var command = new SqlCommand("SELECT Id, Username, PasswordHash FROM Users WHERE Username = @Username", _connection))
+            {
+                command.Transaction = _getTransaction();
+                command.Parameters.AddWithValue("@Username", username);
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        return new User
+                        {
+                            Id = reader.GetInt32(0),
+                            UserName = reader.GetString(1),
+                            PasswordHash = reader.GetString(2) // В реальном приложении здесь должно быть хеширование
+                        };
+                    }
+                    return null;
+                }
+            }
+        }
+
+        public async Task<IEnumerable<User>> GetAllAsync()
+        {
+            var users = new List<User>();
+            using (var command = new SqlCommand("SELECT Id, Username, PasswordHash FROM Users", _connection))
+            {
+                command.Transaction = _getTransaction();
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        users.Add(new User
+                        {
+                            Id = reader.GetInt32(0),
+                            UserName = reader.GetString(1),
+                            PasswordHash = reader.GetString(2)
+                        });
+                    }
+                }
+            }
+            return users;
+        }
+
+        // Методы GetAllAsync, FindAsync и т.д. также должны использовать GetTransaction()
     }
 }

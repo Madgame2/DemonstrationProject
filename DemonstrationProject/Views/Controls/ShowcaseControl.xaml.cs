@@ -24,7 +24,7 @@ namespace DemonstrationProject.Views.Controls
         public ShowcaseControl()
         {
             InitializeComponent();
-            DataContext = new ShowcaseViewModel();
+            DataContext = new ShowcaseViewModel(App.UnitOfWork);
         }
     }
 }

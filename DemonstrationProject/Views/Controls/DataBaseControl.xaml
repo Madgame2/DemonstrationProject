@@ -24,16 +24,16 @@
 
         <Grid Grid.Row="0">
             <StackPanel Orientation="Horizontal">
-                <Button Style="{StaticResource HavButtons}" Content="Синхранизация"/>
+                <Button Style="{StaticResource HavButtons}" Command="{Binding SynchronizeCommand}" Content="Синхранизация"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Style="{StaticResource HavButtons}" Content="Пользователи"/>
-                <Button Style="{StaticResource HavButtons}" Content="Товары"/>
-                <Button Style="{StaticResource HavButtons}" Content="Корзины"/>
+                <Button Style="{StaticResource HavButtons}" Command="{Binding ToUserCommand}" Content="Пользователи"/>
+                <Button Style="{StaticResource HavButtons}" Command="{Binding ToCartCommand}" Content="Корзины"/>
+                <Button Style="{StaticResource HavButtons}" Command="{Binding ToProductCommand}" Content="Товары"/>
             </StackPanel>
         </Grid>
         <Grid Grid.Row="1">
-            <comp:DBTable ItemsSource="{Binding}" MaxVisibleRows="10"/>
+            <comp:DBTable ItemsSource="{Binding SelectedCollection}" MaxVisibleRows="10"/>
         </Grid>
     </Grid>
 </UserControl>

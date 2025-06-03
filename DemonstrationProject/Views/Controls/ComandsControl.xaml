@@ -108,16 +108,16 @@
                     </Grid>
                     <Grid Grid.Column="1">
                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <Button Style="{StaticResource CommandButton}" Content="добавить"/>
-                            <Button Style="{StaticResource CommandButton}" Content="редактировать"/>
-                            <Button Style="{StaticResource CommandButton}" Content="удалить"/>
+                            <Button Style="{StaticResource CommandButton}" Command="{Binding AddProductCommand}" Content="добавить"/>
+                            <Button Style="{StaticResource CommandButton}" Command="{Binding UpdateProductCommand}" Content="редактировать"/>
+                            <Button Style="{StaticResource CommandButton}" Command="{Binding DeleteProductCommand}" Content="удалить"/>
                         </StackPanel>
                     </Grid>
                 </Grid>
             </Border>
         </Grid>
         <Grid Grid.Row="1">
-            <ListView  ItemsSource="{Binding Products}" ItemTemplate="{StaticResource ProductItem}">
+            <ListView  ItemsSource="{Binding Products}" SelectedItem="{Binding SelectedProduct}" ItemTemplate="{StaticResource ProductItem}">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Название" DisplayMemberBinding="{Binding Name}" Width="100"/>

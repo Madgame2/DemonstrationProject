@@ -10,6 +10,7 @@ namespace DemonstrationProject.Repositories.Interfaces
     public interface ICartRerository
     {
         Task AddAsync(Cart cart);
+        Task UpdateAsync(Cart cart);
         Task RemoveAsync(int id);
         Task<Cart> GetByIdAsync(int id);
         Task<IEnumerable<Cart>> GetByUserIdAsync(int userId);

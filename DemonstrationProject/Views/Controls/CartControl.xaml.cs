@@ -12,7 +12,7 @@ namespace DemonstrationProject.Views.Controls
         public CartControl()
         {
             InitializeComponent();
-            DataContext = new CartControlViewModel();
+            DataContext = new CartControlViewModel(App.UnitOfWork, App.UserId);
         }
     }
 }

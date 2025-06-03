@@ -55,6 +55,9 @@ namespace DemonstrationProject.ViewModels
             {
                 var userId = await _unitOfWork.Users.AuthenticateAsync(UserName, Password);
                 
+                // Устанавливаем ID текущего пользователя
+                App.UserId = userId;
+
                 // Открываем главное окно
                 var mainWindow = new MainWindow();
                 mainWindow.Show();

@@ -22,6 +22,11 @@ namespace DemonstrationProject.Repositories
             return Task.FromResult(user.Id);
         }
 
+        public Task<IEnumerable<User>> GetAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<bool> RegisterAsync(string username, string password)
         {
             if (_users.ContainsKey(username)) return Task.FromResult(false);
@@ -29,6 +34,11 @@ namespace DemonstrationProject.Repositories
             _users[username] = new User { Id=GetFreeId(), PasswordHash = password, UserName = username };
 
             return Task.FromResult(true);
+        }
+
+        public Task UpdateAsync(User user)
+        {
+            throw new NotImplementedException();
         }
 
         public Task<bool> UserExistsAsync(string username)=> Task.FromResult(_users.ContainsKey(username));

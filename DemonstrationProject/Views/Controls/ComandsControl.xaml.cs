@@ -13,7 +13,7 @@ namespace DemonstrationProject.Views.Controls
         public ComandsControl()
         {
             InitializeComponent();
-            DataContext = new CommandsViewModel();
+            DataContext = new CommandsViewModel(App.UnitOfWork);
         }
 
         private void PriceTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
