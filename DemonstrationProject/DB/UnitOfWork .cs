@@ -13,6 +13,7 @@ namespace DemonstrationProject.DB
     {
         private readonly SqlConnection _connection;
         private SqlTransaction _transaction;
+        private bool _isDisposed;
 
         public IUserRepository Users { get; }
         public ICartRerository Carts { get; }
@@ -20,6 +21,12 @@ namespace DemonstrationProject.DB
 
         public UnitOfWork(string connectionString)
         {
+            // Добавляем поддержку MARS
+            if (!connectionString.Contains("MultipleActiveResultSets"))
+            {
+                connectionString += ";MultipleActiveResultSets=True";
+            }
+
             _connection = new SqlConnection(connectionString);
             _connection.Open();
             _transaction = _connection.BeginTransaction();
@@ -27,25 +34,57 @@ namespace DemonstrationProject.DB
             Users = new UserRepository(_connection, _transaction);
             Carts = new CartRepository(_connection, _transaction);
             Products = new ProductRepossitory(_connection, _transaction);
-
         }
 
-        public void Commit()
+        public async Task CommitAsync()
         {
-            _transaction.Commit();
-            _transaction = _connection.BeginTransaction();
+            if (_isDisposed) throw new ObjectDisposedException(nameof(UnitOfWork));
+            if (_transaction == null) throw new InvalidOperationException("Transaction is null");
+
+            try
+            {
+                await _transaction.CommitAsync();
+                _transaction = _connection.BeginTransaction();
+            }
+            catch (Exception)
+            {
+                await RollbackAsync();
+                throw;
+            }
         }
 
-        public void Rollback()
+        public async Task RollbackAsync()
         {
-            _transaction?.Rollback();
-            _transaction = _connection.BeginTransaction();
+            if (_isDisposed) throw new ObjectDisposedException(nameof(UnitOfWork));
+            if (_transaction == null) return;
+
+            try
+            {
+                await _transaction.RollbackAsync();
+            }
+            catch (InvalidOperationException)
+            {
+                // Транзакция уже завершена
+            }
+            finally
+            {
+                _transaction = _connection.BeginTransaction();
+            }
         }
 
         public void Dispose()
         {
-            _transaction?.Dispose();
-            _connection?.Dispose();
+            if (_isDisposed) return;
+
+            try
+            {
+                _transaction?.Dispose();
+                _connection?.Dispose();
+            }
+            finally
+            {
+                _isDisposed = true;
+            }
         }
     }
 }

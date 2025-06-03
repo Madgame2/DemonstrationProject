@@ -36,11 +36,11 @@ namespace DemonstrationProject.ViewModels
         {
             _pageService = pageService;
             _userRepository = userRepository;
-            RegisterCommand = new RelayCommand(_ => Register());
+            RegisterCommand = new RelayCommand(async _ => await Register());
             NavigateToLoginCommand = new RelayCommand(_ => NavigateToLogin());
         }
 
-        private async void Register()
+        private async Task Register()
         {
             if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
             {
@@ -62,17 +62,22 @@ namespace DemonstrationProject.ViewModels
                 var result = await uow.Users.RegisterAsync(Username, Password);
                 if (result)
                 {
+                    await uow.CommitAsync();
                     MessageBox.Show("Регистрация выполнена успешно!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                     NavigateToLogin();
-                    uow.Commit();
                 }
-
             }
-            catch
+            catch (Exception ex)
             {
-                uow.Rollback();
-                MessageBox.Show("Ошибка при регистрации", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-
+                try
+                {
+                    await uow.RollbackAsync();
+                }
+                catch (Exception rollbackEx)
+                {
+                    MessageBox.Show($"Ошибка при откате изменений: {rollbackEx.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                MessageBox.Show($"Ошибка при регистрации: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

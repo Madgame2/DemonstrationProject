@@ -1,5 +1,6 @@
 ﻿using DemonstrationProject.Commands;
-using DemonstrationProject.Repositories.Interfaces;
+using DemonstrationProject.DB;
+using DemonstrationProject.Scripts;
 using DemonstrationProject.Scripts.Interfaces;
 using DemonstrationProject.Views.Windows;
 using System;
@@ -16,7 +17,7 @@ namespace DemonstrationProject.ViewModels
         private string _password = string.Empty;
 
         private readonly IPageService _pageService;
-        private readonly IUserRepository _userRepository;
+        private readonly UnitOfWork _unitOfWork;
 
         public string UserName
         {
@@ -33,15 +34,15 @@ namespace DemonstrationProject.ViewModels
         public ICommand LogInCommand { get; }
         public ICommand NavigateToRegisterCommand { get; }
 
-        public LogInViewModel(IPageService pageService, IUserRepository userRepository)
+        public LogInViewModel(IPageService pageService, UnitOfWork unitOfWork)
         {
             _pageService = pageService;
-            _userRepository = userRepository;
-            LogInCommand = new RelayCommand(_ => Login());
+            _unitOfWork = unitOfWork;
+            LogInCommand = new RelayCommand(async _ => await Login());
             NavigateToRegisterCommand = new RelayCommand(_ => NavigateToRegister());
         }
 
-        private async void Login()
+        private async Task Login()
         {
             if (string.IsNullOrWhiteSpace(UserName) || string.IsNullOrWhiteSpace(Password))
             {
@@ -49,30 +50,28 @@ namespace DemonstrationProject.ViewModels
                 return;
             }
 
-            var uow = App.UnitOfWork;
 
             try
             {
-                var userId = await uow.Users.AuthenticateAsync(UserName, Password);
+                var userId = await _unitOfWork.Users.AuthenticateAsync(UserName, Password);
                 
-                App.UserId = userId;
-
+                // Открываем главное окно
+                var mainWindow = new MainWindow();
+                mainWindow.Show();
 
                 var currentWindow = App.Current.MainWindow;
-                var mainWindow = new MainWindow();
-                //mainWindow.Show();
-
-                //currentWindow?.Close();
-                mainWindow.Show();
-                Application.Current.MainWindow = mainWindow;
-
+                
+                App.Current.MainWindow = mainWindow;
                 currentWindow.Close();
 
-
+            }
+            catch (UserNotFoundExaption)
+            {
+                MessageBox.Show("Неверное имя пользователя или пароль", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Неверное имя пользователя или пароль", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Произошла ошибка при входе: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

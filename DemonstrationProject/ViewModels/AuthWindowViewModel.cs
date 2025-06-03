@@ -36,7 +36,7 @@ namespace DemonstrationProject.ViewModels
                 _pageService.PageChanged += OnPageChanged;
 
 
-                var loginControl = new LoginControl { DataContext = new LogInViewModel(_pageService, _userRepository) };
+                var loginControl = new LoginControl { DataContext = new LogInViewModel(_pageService, App.UnitOfWork) };
                 var registerControl = new RegisterControl { DataContext = new RegistrationViewModel(_pageService, _userRepository) };
 
 
