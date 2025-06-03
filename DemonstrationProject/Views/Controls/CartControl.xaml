@@ -45,11 +45,11 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <Image Grid.Column="0" Style="{StaticResource ImageStyles}" Source="{Binding ImageSource}"/>
+                        <Image Grid.Column="0" Style="{StaticResource ImageStyles}" Source="{Binding Product.ImageSource}"/>
                         <Grid Grid.Column="1">
-                            <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="10,10,0,5"/>
+                            <TextBlock Text="{Binding Product.Description}" TextWrapping="Wrap" Margin="10,10,0,5"/>
                         </Grid>
-                        <TextBlock Grid.Column="2" Text="{Binding Price, StringFormat=' {0:C}'}"  VerticalAlignment="Center" Margin="0,0,25,0"/>
+                        <TextBlock Grid.Column="2" Text="{Binding Product.Price, StringFormat=' {0:C}'}"  VerticalAlignment="Center" Margin="0,0,25,0"/>
                     </Grid>
                 </Border>
             </Border>
@@ -63,7 +63,7 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0">
-            <ItemsControl ItemsSource="{Binding Products}" ItemTemplate="{StaticResource CartItemTemplate}" Margin="0,0,25,0">
+            <ItemsControl ItemsSource="{Binding CartItems}" ItemTemplate="{StaticResource CartItemTemplate}" Margin="0,0,25,0">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Vertical"/>
@@ -75,7 +75,8 @@
             <components:FinaledField Margin="0,5,0,0" VerticalAlignment="Top" Height="130"
                                      FinalFeald="итоговая стоимость: "
                                      Description="Налог с продаж будет рассчитан во время оформления заказа, если применимо."
-                                     FinalValue="{Binding TotalCoast}"/>
+                                     FinalValue="{Binding TotalCoast}"
+                                     Command="{Binding ConfirmPurchaseCommand}"/>
         </Grid>
     </Grid>
 </UserControl>

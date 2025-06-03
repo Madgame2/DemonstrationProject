@@ -52,6 +52,13 @@ namespace DemonstrationProject.Views.Components
                 new FrameworkPropertyMetadata("OK", null, CoerceButtonText),
                 ValidateButtonText);
 
+        public static readonly DependencyProperty CommandProperty =
+            DependencyProperty.Register(
+                nameof(Command),
+                typeof(ICommand),
+                typeof(FinaledField),
+                new PropertyMetadata(null));
+
         public static readonly RoutedEvent SubmitEvent =
     EventManager.RegisterRoutedEvent(
         nameof(Submit),
@@ -128,6 +135,13 @@ namespace DemonstrationProject.Views.Components
             get => (string)GetValue(FinalFealdProperty);
             set => SetValue(FinalFealdProperty, value);
         }
+
+        public ICommand Command
+        {
+            get => (ICommand)GetValue(CommandProperty);
+            set => SetValue(CommandProperty, value);
+        }
+
         public FinaledField()
         {
             InitializeComponent();
@@ -135,7 +149,7 @@ namespace DemonstrationProject.Views.Components
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            RaiseEvent(new RoutedEventArgs(SubmitEvent));
+            Command?.Execute(null);
         }
     }
 }
