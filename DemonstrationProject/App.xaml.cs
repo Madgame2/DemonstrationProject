@@ -14,6 +14,10 @@ namespace DemonstrationProject
     /// </summary>
     public partial class App : Application
     {
+
+        public static UnitOfWork UnitOfWork { get; private set; }
+        public static int UserId { get; set; }
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -28,11 +32,21 @@ namespace DemonstrationProject
                 Shutdown(); 
             }
 
+            string connectionString = ConfigurationManager.ConnectionStrings["DemonstrationDB"].ConnectionString;
+            UnitOfWork = new UnitOfWork(connectionString);
+
             var pageService = new PageService();
 
-            var maInWindow = new MainWindow();
+            //var maInWindow = new MainWindow();
             var Window = new AuthWindow();
-            maInWindow.Show();
+            Window.Show();
+        }
+
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            UnitOfWork?.Dispose();
+            base.OnExit(e);
         }
     }
 }

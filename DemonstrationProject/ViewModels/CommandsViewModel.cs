@@ -51,6 +51,8 @@ namespace DemonstrationProject.ViewModels
 
         public ICommand LoadImageCommand { get; }
 
+        public ICommand addProductCommand { get; }
+
 
         public ObservableCollection<Product> Products { get; } = new();
         public CommandsViewModel()

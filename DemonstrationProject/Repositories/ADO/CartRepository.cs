@@ -9,7 +9,7 @@ using Microsoft.Data.SqlClient;
 
 namespace DemonstrationProject.Repositories.ADO
 {
-    public class CartRepository : ICartPerository
+    public class CartRepository : ICartRerository
     {
         private readonly SqlConnection _connection;
         private readonly SqlTransaction _transaction;

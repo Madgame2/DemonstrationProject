@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using DemonstrationProject.Scripts;
 
 namespace DemonstrationProject.Repositories.ADO
 {
@@ -28,7 +29,7 @@ namespace DemonstrationProject.Repositories.ADO
             using var reader = await cmd.ExecuteReaderAsync();
 
             if (!await reader.ReadAsync())
-                return -1;
+                 throw new UserNotFoundExaption();
 
             int userId = (int)reader["Id"];
             return userId;

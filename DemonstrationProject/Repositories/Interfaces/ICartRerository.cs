@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DemonstrationProject.Repositories.Interfaces
 {
-    public interface ICartPerository
+    public interface ICartRerository
     {
         Task AddAsync(Cart cart);
         Task RemoveAsync(int id);

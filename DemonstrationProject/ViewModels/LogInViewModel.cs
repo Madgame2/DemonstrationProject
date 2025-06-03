@@ -49,19 +49,26 @@ namespace DemonstrationProject.ViewModels
                 return;
             }
 
+            var uow = App.UnitOfWork;
+
             try
             {
-                var userId = await _userRepository.AuthenticateAsync(UserName, Password);
+                var userId = await uow.Users.AuthenticateAsync(UserName, Password);
                 
-                // Открываем главное окно
-                var mainWindow = new MainWindow();
-                mainWindow.Show();
+                App.UserId = userId;
 
-                // Закрываем окно авторизации
-                if (Application.Current.Windows.Count > 0)
-                {
-                    Application.Current.Windows[0].Close();
-                }
+
+                var currentWindow = App.Current.MainWindow;
+                var mainWindow = new MainWindow();
+                //mainWindow.Show();
+
+                //currentWindow?.Close();
+                mainWindow.Show();
+                Application.Current.MainWindow = mainWindow;
+
+                currentWindow.Close();
+
+
             }
             catch (Exception ex)
             {

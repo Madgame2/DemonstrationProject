@@ -48,20 +48,31 @@ namespace DemonstrationProject.ViewModels
                 return;
             }
 
-            if (await _userRepository.UserExistsAsync(Username))
+            var uow = App.UnitOfWork;
+            try
             {
-                MessageBox.Show("Пользователь с таким именем уже существует", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
+                bool exists = await uow.Users.UserExistsAsync(Username);
 
-            if (await _userRepository.RegisterAsync(Username, Password))
-            {
-                MessageBox.Show("Регистрация выполнена успешно!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
-                NavigateToLogin();
+                if (exists)
+                {
+                    MessageBox.Show("Пользователь с таким именем уже существует", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                var result = await uow.Users.RegisterAsync(Username, Password);
+                if (result)
+                {
+                    MessageBox.Show("Регистрация выполнена успешно!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
+                    NavigateToLogin();
+                    uow.Commit();
+                }
+
             }
-            else
+            catch
             {
+                uow.Rollback();
                 MessageBox.Show("Ошибка при регистрации", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+
             }
         }
 
